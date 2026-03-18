@@ -53,7 +53,7 @@
                         {% if start < 0 %}{% set start = 0 %}{% endif %}
 
                         {% if start > 0 %}
-                            <li class="event-year-dots">...</li>
+                            <li class="event-year-dots light">...</li>
                         {% endif %}
 
                         {% for year in eventYears %}
@@ -64,7 +64,7 @@
                         {% endfor %}
 
                         {% if end < total - 1 %}
-                            <li class="event-year-dots">...</li>
+                            <li class="event-year-dots light">...</li>
                         {% endif %}
 
                     {% endif %}
