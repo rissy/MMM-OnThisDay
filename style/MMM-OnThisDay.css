@@ -13,7 +13,7 @@
 
 /* Justify texts */
 .MMM-OnThisDay .module-content {
-    text-align: justify;
+    text-align: left;
 }
 
 /* Space between list items */
