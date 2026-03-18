@@ -158,7 +158,7 @@ const moduleDefinition = {
     loadEvents: function () {
         Log.info('Load events ...');
 
-        if (!this.currentDay || this.currentDay === (new Date()).getDay()) {
+        if (!this.currentDay || this.currentDay !== new Date().getDay()) {
             // Load events in node helper
             this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
         }
@@ -203,6 +203,7 @@ const moduleDefinition = {
             this.eventYears = this.events.map((event) => event.year);
 
             this.updateCarousel();
+            this.scheduleRefresh();
             return;
         }
 
@@ -213,9 +214,12 @@ const moduleDefinition = {
     },
 
     scheduleRefresh: function (seconds) {
-        setTimeout(() => {
-            this.loadEvents();
-        }, (seconds || this.config.updateInterval) * 1000);
+        setTimeout(
+            () => {
+                this.loadEvents();
+            },
+            (seconds || this.config.updateInterval) * 1000,
+        );
     },
 
     updateCarousel: function () {
