@@ -22,6 +22,7 @@
 }
 
 .MMM-OnThisDay .event-year-list {
+    width: 100%;
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
