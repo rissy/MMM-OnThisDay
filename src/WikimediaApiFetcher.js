@@ -11,7 +11,10 @@ module.exports = class {
 
         // Check response
         if (!response.ok) {
-            return [];
+            return {
+                events: [],
+                day: null,
+            };
         }
 
         const json = await response.json();
@@ -20,7 +23,7 @@ module.exports = class {
         // Reverse order for backward compatibility
         return {
             events: selectedEvents.reverse(),
-            day: day,
+            day: selectedEvents.length ? day : null,
         };
     }
 };
