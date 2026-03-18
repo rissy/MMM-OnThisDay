@@ -18,6 +18,9 @@ module.exports = class {
         const selectedEvents = json['events'] || [];
 
         // Reverse order for backward compatibility
-        return selectedEvents.reverse();
+        return {
+            events: selectedEvents.reverse(),
+            day: day,
+        };
     }
 };

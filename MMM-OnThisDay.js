@@ -150,7 +150,8 @@ const moduleDefinition = {
 
         // Events loaded with node helper
         if (notification === 'EVENTS_LOADED') {
-            this.handleEventsLoaded(payload);
+            this.currentDay = payload.day;
+            this.handleEventsLoaded(payload.events);
         }
     },
 
@@ -161,15 +162,13 @@ const moduleDefinition = {
             // Load events in node helper
             this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
         }
-
-        // Schedule next load
-        this.scheduleRefresh();
     },
 
     handleEventsLoaded: function (payload) {
         // No data
         if (payload.length <= 0) {
             Log.warn('No events available for language ' + this.usedLanguage);
+            this.scheduleRefresh(1);
             return;
         }
 
@@ -210,12 +209,13 @@ const moduleDefinition = {
         // Update module
         Log.info('Update DOM with new title and events ...');
         this.updateDom(this.config.animationSpeed * 1000);
+        this.scheduleRefresh();
     },
 
-    scheduleRefresh: function () {
+    scheduleRefresh: function (seconds) {
         setTimeout(() => {
             this.loadEvents();
-        }, this.config.updateInterval * 1000);
+        }, (seconds || this.config.updateInterval) * 1000);
     },
 
     updateCarousel: function () {
