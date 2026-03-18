@@ -23,16 +23,30 @@
 
 .MMM-OnThisDay .event-year-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 0.5rem;
-
-    justify-content: space-between;
+    justify-content: center;
     margin: 0.5rem 0 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
 }
 
-.MMM-OnThisDay .event-year-list .event-year {
-    display: inline;
+.MMM-OnThisDay .event-year-list .event-year,
+.MMM-OnThisDay .event-year-list .event-year-dots {
+    display: inline-block;
+    white-space: nowrap;
     margin: 0;
+}
+
+.MMM-OnThisDay .event-year.bold {
+    font-weight: bold;
+    transform: scale(1.1);
+}
+
+.MMM-OnThisDay .event-year.light {
+    font-weight: 300;
+    opacity: 0.7;
 }
 
 /* Progress bar */
