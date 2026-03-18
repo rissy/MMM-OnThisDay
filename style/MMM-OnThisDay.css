@@ -22,10 +22,11 @@
 }
 
 .MMM-OnThisDay .event-year-list {
+    width: 100%;
     display: flex;
     flex-wrap: nowrap;
     gap: 0.5rem;
-    justify-content: center;
+    justify-content: space-between;
     margin: 0.5rem 0 0;
     padding: 0;
     list-style: none;
@@ -37,6 +38,10 @@
     display: inline-block;
     white-space: nowrap;
     margin: 0;
+}
+
+.MMM-OnThisDay .event-year-list .event-year-dots {
+    color: #888;
 }
 
 .MMM-OnThisDay .event-year.bold {

@@ -26,27 +26,43 @@
 
             {# Carousel mode #}
             {% set event = events[carouselIndex] %}
-            <div class="bright">{{ event.text }}</div>
+            <div class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
 
             {# List of years #}
             {% if eventYears | length > 0 %}
 
-                <ul class="event-year-list">
-                    {% for year in eventYears %}
-                        {% set isVisible = (loop.index0 >= carouselIndex - 3) and (loop.index0 <= carouselIndex + 3) %}
+                {% set total = eventYears | length %}
+                {% set current = carouselIndex %}
 
-                        {% if isVisible %}
-                            {% set fontWeight = 'bold' if loop.index0 == carouselIndex else 'light' %}
-                            <li class="event-year {{ fontWeight }}">{{ year }}</li>
+                {% set start = current - 3 %}
+                {% set end = current + 3 %}
 
-                        {% elif loop.index0 == carouselIndex - 4 %}
-                            <li class="event-year-dots">...</li>
+                {% if start < 0 %}
+                    {% set start = 0 %}
+                    {% set end = 6 %}
+                {% endif %}
 
-                        {% elif loop.index0 == carouselIndex + 4 %}
-                            <li class="event-year-dots">...</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
+                {% if end >= total %}
+                    {% set end = total - 1 %}
+                    {% set start = total - 7 %}
+                {% endif %}
+
+                {% if start < 0 %}{% set start = 0 %}{% endif %}
+
+                {% if start > 0 %}
+                    <li class="event-year-dots">...</li>
+                {% endif %}
+
+                {% for year in eventYears %}
+                    {% if loop.index0 >= start and loop.index0 <= end %}
+                        {% set fontWeight = 'bold' if loop.index0 == current else 'light' %}
+                        <li class="event-year {{ fontWeight }}">{{ year }}</li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if end < total - 1 %}
+                    <li class="event-year-dots">...</li>
+                {% endif %}
 
             {% endif %}
 
@@ -55,7 +71,7 @@
             {# Normal mode #}
             <ul class="bright">
                 {% for event in events %}
-                    <li>{{ event.text }}</li>
+                    <li>{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</li>
                 {% endfor %}
             </ul>
 
