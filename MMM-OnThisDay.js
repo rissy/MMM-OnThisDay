@@ -65,6 +65,8 @@ const moduleDefinition = {
      */
     carouselTimer: null,
 
+    currentDay: null,
+
     /**
      * Module scripts.
      *
@@ -155,8 +157,10 @@ const moduleDefinition = {
     loadEvents: function () {
         Log.info('Load events ...');
 
-        // Load events in node helper
-        this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
+        if (!this.currentDay || this.currentDay === (new Date()).getDay()) {
+            // Load events in node helper
+            this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
+        }
 
         // Schedule next load
         this.scheduleRefresh();
