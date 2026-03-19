@@ -157,7 +157,8 @@ const moduleDefinition = {
     loadEvents: function () {
         Log.info('Load events ...');
 
-        if (!this.currentDay || this.currentDay !== new Date().getDay()) {
+        const today = new Date().getDate();
+        if (!this.currentDay || this.currentDay !== today) {
             // Load events in node helper
             this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
         }
@@ -165,12 +166,15 @@ const moduleDefinition = {
 
     handleEventsLoaded: function (payload) {
         // No data
-        if (payload.length <= 0) {
+        if (!payload || payload.length <= 0) {
             Log.warn('No events available for language ' + this.usedLanguage);
             this.currentDay = null;
-            this.scheduleRefresh(1);
+            this.scheduleRefresh(60); // Retry in a minute
             return;
         }
+
+        // Set current day to prevent frequent reloads
+        this.currentDay = new Date().getDate();
 
         // Set content
         this.title = new Date().toLocaleDateString(this.usedLanguage, {
@@ -202,6 +206,7 @@ const moduleDefinition = {
             // Prepare event years
             this.eventYears = this.events.map((event) => event.year);
 
+            this.carouselIndex = -1; // Reset index to start from beginning
             this.updateCarousel();
             this.scheduleRefresh();
             return;
