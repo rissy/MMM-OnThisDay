@@ -150,7 +150,8 @@ const moduleDefinition = {
 
         // Events loaded with node helper
         if (notification === 'EVENTS_LOADED') {
-            this.handleEventsLoaded(payload);
+            this.currentDay = payload.day;
+            this.handleEventsLoaded(payload.events);
         }
     },
 
@@ -167,7 +168,6 @@ const moduleDefinition = {
         // No data
         if (payload.length <= 0) {
             Log.warn('No events available for language ' + this.usedLanguage);
-            this.currentDay = null;
             this.scheduleRefresh(1);
             return;
         }
