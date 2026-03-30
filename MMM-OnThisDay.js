@@ -52,6 +52,11 @@ const moduleDefinition = {
     eventYears: [],
 
     /**
+     * Events has years for carousel model.
+     */
+    hasYears: false,
+
+    /**
      * Index of current event displayed in the carousel mode.
      */
     carouselIndex: -1,
@@ -121,6 +126,7 @@ const moduleDefinition = {
             config: this.config,
             events: this.events,
             eventYears: this.eventYears,
+            hasYears: this.hasYears,
             carouselIndex: this.carouselIndex,
             eventDisplayDuration: this.eventDisplayDuration,
         };
@@ -210,7 +216,8 @@ const moduleDefinition = {
             }
 
             // Prepare event years
-            this.eventYears = this.events.map((event) => event.year);
+            this.eventYears = this.events.map((event) => event.year || '*');
+            this.hasYears = this.eventYears.some((year) => year !== '*');
 
             this.carouselIndex = -1; // Reset index to start from beginning
             this.updateCarousel();

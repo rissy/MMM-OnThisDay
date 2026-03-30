@@ -29,7 +29,7 @@
             <div class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
 
             {# List of years #}
-            {% if eventYears | length > 0 %}
+            {% if eventYears | length > 0 and hasYears %}
 
                 <ul class="event-year-list">
                     {% if eventYears | length > 0 %}
