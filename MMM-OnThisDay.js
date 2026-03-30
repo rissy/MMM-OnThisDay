@@ -8,6 +8,7 @@
 const moduleDefinition = {
     defaults: {
         language: null,
+        eventsType: 'events',
 
         // Intervals
         animationSpeed: 1, // 1 sec.
@@ -160,7 +161,10 @@ const moduleDefinition = {
         const today = new Date().getDate();
         if (!this.currentDay || this.currentDay !== today) {
             // Load events in node helper
-            this.sendSocketNotification('LOAD_EVENTS', this.usedLanguage);
+            this.sendSocketNotification('LOAD_EVENTS', {
+                lang: this.usedLanguage,
+                eventsType: this.config.eventsType,
+            });
         } else {
             this.scheduleRefresh();
         }

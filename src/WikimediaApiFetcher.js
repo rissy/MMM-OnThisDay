@@ -1,14 +1,15 @@
 module.exports = class {
-    async fetch(language) {
+    async fetch(language, eventsType) {
         // Wikimedia API requires a 2-letter language code in most cases, 
         // and MagicMirror's config.language can be 'en-US'
         const lang = language ? language.split('-')[0] : 'en';
+        const events = eventsType || 'events';
 
         // Build URI
         const today = new Date();
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
-        const uri = `https://api.wikimedia.org/feed/v1/wikipedia/${lang}/onthisday/events/${month}/${day}`;
+        const uri = `https://api.wikimedia.org/feed/v1/wikipedia/${lang}/onthisday/${events}/${month}/${day}`;
 
         try {
             // Fetch data with User-Agent header (required by Wikimedia API)
@@ -25,7 +26,7 @@ module.exports = class {
             }
 
             const json = await response.json();
-            const selectedEvents = json['events'] || [];
+            const selectedEvents = json[events] || [];
 
             // Reverse order for backward compatibility
             return selectedEvents.reverse();
