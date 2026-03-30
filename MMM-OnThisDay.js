@@ -31,46 +31,14 @@ const moduleDefinition = {
 
     requiresVersion: '2.1.0', // Required version of MagicMirror
 
-    /**
-     * Used language.
-     */
-    usedLanguage: 'en', // Fallback
-
-    /**
-     * Title as string from Wikipedia.
-     */
+    usedLanguage: 'en',
     title: null,
-
-    /**
-     * Separate events parsed from the HTML data.
-     */
     events: [],
-
-    /**
-     * Event years for carousel model.
-     */
     eventYears: [],
-
-    /**
-     * Events has years for carousel model.
-     */
     hasYears: false,
-
-    /**
-     * Index of current event displayed in the carousel mode.
-     */
     carouselIndex: -1,
-
-    /**
-     * Current event display duration, static or based on word count.
-     */
     eventDisplayDuration: null,
-
-    /**
-     * Timer for the current displayed event in the carousel mode.
-     */
     carouselTimer: null,
-
     currentDay: null,
 
     /**
@@ -139,8 +107,18 @@ const moduleDefinition = {
     start: function () {
         Log.info('MMM-OnThisDay starting...');
 
-        // Determine languages
+        // Instance-local state — must be initialized here so each instance
+        // in a multi-module config gets its own copies, not shared prototype refs.
         this.usedLanguage = this.config.language || config.language;
+        this.title = null;
+        this.events = [];
+        this.eventYears = [];
+        this.hasYears = false;
+        this.carouselIndex = -1;
+        this.eventDisplayDuration = null;
+        this.carouselTimer = null;
+        this.currentDay = null;
+
         Log.info(`Using language ${this.usedLanguage}.`);
     },
 
@@ -155,8 +133,9 @@ const moduleDefinition = {
     socketNotificationReceived: function (notification, payload) {
         Log.info(`Received socket notification ${notification}.`);
 
-        // Events loaded with node helper
-        if (notification === 'EVENTS_LOADED') {
+        // Each instance listens only for its own response, identified by
+        // this.identifier (set by MagicMirror² per config entry).
+        if (notification === 'EVENTS_LOADED_' + this.identifier) {
             this.handleEventsLoaded(payload);
         }
     },
@@ -166,10 +145,12 @@ const moduleDefinition = {
 
         const today = new Date().getDate();
         if (!this.currentDay || this.currentDay !== today) {
-            // Load events in node helper
+            // Load events in node helper; include identifier so the helper
+            // can route the response back to this specific instance only.
             this.sendSocketNotification('LOAD_EVENTS', {
                 lang: this.usedLanguage,
                 eventsType: this.config.eventsType,
+                identifier: this.identifier,
             });
         } else {
             this.scheduleRefresh();

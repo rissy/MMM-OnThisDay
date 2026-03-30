@@ -25,8 +25,8 @@ module.exports = NodeHelper.create({
             // Load data
             const events = await this.loadEvents(payload.lang, payload.eventsType);
 
-            // Send data to module
-            this.sendSocketNotification('EVENTS_LOADED', events);
+            // Route the response back to the requesting instance only.
+            this.sendSocketNotification('EVENTS_LOADED_' + payload.identifier, events);
         }
     },
 

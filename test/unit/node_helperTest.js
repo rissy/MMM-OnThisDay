@@ -33,12 +33,16 @@ describe('node_helper', () => {
 
         it('should send socket notification with title and events on LOAD_EVENTS notification', async () => {
             // Act
-            await helper.socketNotificationReceived('LOAD_EVENTS', 'en');
+            await helper.socketNotificationReceived('LOAD_EVENTS', {
+                lang: 'en',
+                eventsType: 'events',
+                identifier: 'MMM-OnThisDay_test',
+            });
 
             // Assert
             assert.ok(helper.sendSocketNotification.calledOnce);
             assert.ok(
-                helper.sendSocketNotification.calledWith('EVENTS_LOADED', [
+                helper.sendSocketNotification.calledWith('EVENTS_LOADED_MMM-OnThisDay_test', [
                     {
                         text: 'test events for en',
                     },

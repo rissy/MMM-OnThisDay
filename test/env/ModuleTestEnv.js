@@ -33,6 +33,7 @@ module.exports = function () {
     module.data = {};
 
     // Fake inherited methods
+    module.identifier = 'MMM-OnThisDay_test';
     module.updateDom = sinon.fake();
     module.sendSocketNotification = sinon.fake();
     module.file = (path) => path;

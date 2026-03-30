@@ -161,7 +161,7 @@ describe('MMM-OnThisDay', () => {
             const payload = [];
 
             // Act
-            module.socketNotificationReceived('EVENTS_LOADED', payload);
+            module.socketNotificationReceived('EVENTS_LOADED_' + module.identifier, payload);
 
             // Assert
             assert.strictEqual(module.events.length, 0);
@@ -176,7 +176,7 @@ describe('MMM-OnThisDay', () => {
             ];
 
             // Act
-            module.socketNotificationReceived('EVENTS_LOADED', payload);
+            module.socketNotificationReceived('EVENTS_LOADED_' + module.identifier, payload);
 
             // Assert
             assert.strictEqual(module.title, 'January 1');
