@@ -16,22 +16,22 @@
             {# Progress bar #}
             {% if config.carouselProgress %}
                 <style>
-                    .MMM-OnThisDay progress::-webkit-progress-value {
+                    .MMM-OnThisDay .mmm-otd-carousel-progress::-webkit-progress-value {
                         transition: width {{ eventDisplayDuration - 0.5 }}s linear;
                     }
                 </style>
 
-                <progress id="mmm-otd-carousel-progress" value="0" max="1"></progress>
+                <progress class="mmm-otd-carousel-progress" value="0" max="1"></progress>
             {% endif %}
 
             {# Carousel mode #}
             {% set event = events[carouselIndex] %}
-            <div id="mmm-otd-carousel-event" class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
+            <div id="mmm-otd-carousel-event-{{ identifier }}" class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
 
             {# List of years #}
             {% if (eventYears | length > 0) and hasYears %}
 
-                <ul id="mmm-otd-carousel-years" class="event-year-list">
+                <ul id="mmm-otd-carousel-years-{{ identifier }}" class="event-year-list">
                     {% if eventYears | length > 0 %}
 
                         {% set total = eventYears | length %}

@@ -92,6 +92,7 @@ const moduleDefinition = {
     getTemplateData: function () {
         return {
             config: this.config,
+            identifier: this.identifier,
             events: this.events,
             eventYears: this.eventYears,
             hasYears: this.hasYears,
@@ -252,7 +253,7 @@ const moduleDefinition = {
         const eventText = this.events[this.carouselIndex].text;
         this.eventDisplayDuration = this.getEventDisplayDuration(eventText);
 
-        const eventEl = document.getElementById('mmm-otd-carousel-event');
+        const eventEl = document.getElementById('mmm-otd-carousel-event-' + this.identifier);
         const fadeMs = this.config.animationSpeed * 500;
 
         if (eventEl) {
@@ -281,7 +282,7 @@ const moduleDefinition = {
     },
 
     updateYearList: function () {
-        const yearsEl = document.getElementById('mmm-otd-carousel-years');
+        const yearsEl = document.getElementById('mmm-otd-carousel-years-' + this.identifier);
         if (!yearsEl) return;
 
         const total = this.eventYears.length;

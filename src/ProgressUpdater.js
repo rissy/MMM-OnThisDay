@@ -3,27 +3,16 @@
  */
 
 function updateProgress(mutations) {
-    // Find mutations in this module
-    const moduleMutations = [];
+    const seen = new Set();
+
     mutations.forEach(function (mutation) {
-        if (mutation.target.parentNode.classList.contains('MMM-OnThisDay')) {
-            moduleMutations.push(mutation);
-        }
+        const moduleEl = mutation.target.closest('.MMM-OnThisDay');
+        if (!moduleEl || seen.has(moduleEl)) return;
+        seen.add(moduleEl);
+
+        const progress = moduleEl.querySelector('.mmm-otd-carousel-progress');
+        if (progress) progress.value = 1;
     });
-
-    // Do nothing if mutations are not in this module
-    if (moduleMutations.length <= 0) {
-        return;
-    }
-
-    // Find progress bar
-    const progress = document.getElementById('mmm-otd-carousel-progress');
-    if (!progress) {
-        return;
-    }
-
-    // Update progress
-    progress.value = 1;
 }
 
 const observer = new MutationObserver(updateProgress);
