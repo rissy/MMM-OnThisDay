@@ -57,7 +57,7 @@
                         {% endif %}
 
                         {% for year in eventYears %}
-                            {% if loop.index0 >= start and loop.index0 <= end %}
+                            {% if loop.index0 >= start and loop.index0 <= end and year != '*' %}
                                 {% set fontWeight = 'bold' if loop.index0 == current else 'light' %}
                                 <li class="event-year {{ fontWeight }}">{{ year }}</li>
                             {% endif %}

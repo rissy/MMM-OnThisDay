@@ -66,5 +66,29 @@ describe('node_helper', () => {
                 selected: [],
             });
         });
+
+        it('should return cached data on second call without fetching again', async () => {
+            // Arrange
+            const fetchSpy = sinon.spy(helper.wikimediaApiFetcher, 'fetch');
+
+            // Act
+            await helper.loadEvents('en');
+            await helper.loadEvents('en');
+
+            // Assert — fetcher called only once despite two loadEvents calls
+            assert.ok(fetchSpy.calledOnce);
+        });
+
+        it('should share a single in-flight fetch for concurrent requests', async () => {
+            // Arrange
+            const fetchSpy = sinon.spy(helper.wikimediaApiFetcher, 'fetch');
+
+            // Act — fire two calls without awaiting in between
+            const [a, b] = await Promise.all([helper.loadEvents('en'), helper.loadEvents('en')]);
+
+            // Assert — one fetch, both callers get the same data
+            assert.ok(fetchSpy.calledOnce);
+            assert.deepStrictEqual(a, b);
+        });
     });
 });

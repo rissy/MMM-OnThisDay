@@ -12,10 +12,18 @@ const WikimediaApiFetcher = require('./src/WikimediaApiFetcher');
 module.exports = NodeHelper.create({
     wikimediaApiFetcher: null,
 
+    // Cache per language: Map<lang, { date: string, data: object }>
+    cache: null,
+
+    // In-flight fetches per language to deduplicate concurrent requests
+    pendingFetches: null,
+
     start: function (wikimediaApiFetcher, logger) {
         this.wikimediaApiFetcher =
             wikimediaApiFetcher || new WikimediaApiFetcher();
         this.logger = logger || require('logger');
+        this.cache = new Map();
+        this.pendingFetches = new Map();
     },
 
     socketNotificationReceived: async function (notification, payload) {
@@ -33,6 +41,29 @@ module.exports = NodeHelper.create({
     loadEvents: async function (language) {
         this.logger.log('Load events ...');
 
-        return this.wikimediaApiFetcher.fetch(language);
+        const today = new Date().toDateString();
+        const cached = this.cache.get(language);
+
+        if (cached && cached.date === today) {
+            this.logger.log('Returning cached events for ' + language);
+            return cached.data;
+        }
+
+        // If a fetch for this language is already in flight, share it
+        if (this.pendingFetches.has(language)) {
+            this.logger.log('Waiting for pending fetch for ' + language);
+            return this.pendingFetches.get(language);
+        }
+
+        const promise = this.wikimediaApiFetcher.fetch(language).then((data) => {
+            this.pendingFetches.delete(language);
+            if (data) {
+                this.cache.set(language, { date: today, data });
+            }
+            return data;
+        });
+
+        this.pendingFetches.set(language, promise);
+        return promise;
     },
 });

@@ -310,6 +310,7 @@ const moduleDefinition = {
         }
 
         for (let i = start; i <= end; i++) {
+            if (this.eventYears[i] === '*') continue;
             const li = document.createElement('li');
             li.className = `event-year ${i === current ? 'bold' : 'light'}`;
             li.textContent = this.eventYears[i];
