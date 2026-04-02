@@ -35,33 +35,36 @@ describe('node_helper', () => {
             // Act
             await helper.socketNotificationReceived('LOAD_EVENTS', {
                 lang: 'en',
-                eventsType: 'events',
                 identifier: 'MMM-OnThisDay_test',
             });
 
             // Assert
             assert.ok(helper.sendSocketNotification.calledOnce);
             assert.ok(
-                helper.sendSocketNotification.calledWith('EVENTS_LOADED_MMM-OnThisDay_test', [
-                    {
-                        text: 'test events for en',
-                    },
-                ]),
+                helper.sendSocketNotification.calledWith('EVENTS_LOADED_MMM-OnThisDay_test', {
+                    events: [{ text: 'test events for en' }],
+                    births: [],
+                    deaths: [],
+                    holidays: [],
+                    selected: [],
+                }),
             );
         });
     });
 
     describe('loadEvents', () => {
-        it('should return loaded and parsed html data', async () => {
+        it('should return full all-events response object', async () => {
             // Act
-            const events = await helper.loadEvents('en');
+            const data = await helper.loadEvents('en');
 
             // Assert
-            assert.deepStrictEqual(events, [
-                {
-                    text: 'test events for en',
-                },
-            ]);
+            assert.deepStrictEqual(data, {
+                events: [{ text: 'test events for en' }],
+                births: [],
+                deaths: [],
+                holidays: [],
+                selected: [],
+            });
         });
     });
 });

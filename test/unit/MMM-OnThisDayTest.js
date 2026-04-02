@@ -100,6 +100,30 @@ describe('MMM-OnThisDay', () => {
             // Assert
             assert.strictEqual(header, 'Module title');
         });
+
+        it('should prepend eventTitle to module title', () => {
+            // Arrange
+            module.config.eventTitle = 'My Mirror';
+            module.title = 'January 1';
+
+            // Act
+            const header = module.getHeader();
+
+            // Assert
+            assert.strictEqual(header, 'My Mirror | January 1');
+        });
+
+        it('should not prepend eventTitle when user header is set', () => {
+            // Arrange
+            module.config.eventTitle = 'My Mirror';
+            module.data.header = 'User header';
+
+            // Act
+            const header = module.getHeader();
+
+            // Assert
+            assert.strictEqual(header, 'User header');
+        });
     });
 
     describe('start', () => {
@@ -156,9 +180,17 @@ describe('MMM-OnThisDay', () => {
             assert.strictEqual(module.events.length, 0);
         });
 
-        it('should do nothing if no events were found', () => {
+        it('should do nothing if fetch failed', () => {
+            // Act
+            module.socketNotificationReceived('EVENTS_LOADED_' + module.identifier, null);
+
+            // Assert
+            assert.strictEqual(module.events.length, 0);
+        });
+
+        it('should do nothing if no events for the configured type', () => {
             // Arrange
-            const payload = [];
+            const payload = { events: [], births: [], deaths: [], holidays: [], selected: [] };
 
             // Act
             module.socketNotificationReceived('EVENTS_LOADED_' + module.identifier, payload);
@@ -169,11 +201,7 @@ describe('MMM-OnThisDay', () => {
 
         it('should set title and events', () => {
             // Arrange
-            const payload = [
-                {
-                    text: 'Test event',
-                },
-            ];
+            const payload = { events: [{ text: 'Test event' }], births: [], deaths: [], holidays: [], selected: [] };
 
             // Act
             module.socketNotificationReceived('EVENTS_LOADED_' + module.identifier, payload);
@@ -194,8 +222,9 @@ describe('MMM-OnThisDay', () => {
             module.sendSocketNotification.calledWith('LOAD_EVENTS', 'en');
         });
 
-        it('should schedule refresh', () => {
+        it('should schedule refresh when day has not changed', () => {
             // Arrange
+            module.currentDay = new Date().getDate();
             module.scheduleRefresh = sinon.spy();
 
             // Act
@@ -207,9 +236,9 @@ describe('MMM-OnThisDay', () => {
     });
 
     describe('scheduleRefresh', () => {
-        it('should not load events before update interval', () => {
+        it('should not load events before midnight', () => {
             // Arrange
-            module.config.updateInterval = 1;
+            module.getMsUntilMidnight = () => 1000;
             module.loadEvents = sinon.spy();
 
             // Act
@@ -220,14 +249,28 @@ describe('MMM-OnThisDay', () => {
             assert.ok(module.loadEvents.notCalled);
         });
 
-        it('should not load events on update interval', () => {
+        it('should load events at midnight', () => {
             // Arrange
-            module.config.updateInterval = 1;
+            module.getMsUntilMidnight = () => 1000;
             module.loadEvents = sinon.spy();
 
             // Act
             module.scheduleRefresh();
             clock.tick(1000);
+
+            // Assert
+            assert.ok(module.loadEvents.calledOnce);
+        });
+
+        it('should load events after given seconds', () => {
+            // Arrange
+            module.loadEvents = sinon.spy();
+
+            // Act
+            module.scheduleRefresh(1);
+            clock.tick(999);
+            assert.ok(module.loadEvents.notCalled);
+            clock.tick(1);
 
             // Assert
             assert.ok(module.loadEvents.calledOnce);

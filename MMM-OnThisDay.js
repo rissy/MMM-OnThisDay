@@ -9,10 +9,10 @@ const moduleDefinition = {
     defaults: {
         language: null,
         eventsType: 'events',
+        eventTitle: null,
 
         // Intervals
         animationSpeed: 1, // 1 sec.
-        updateInterval: 3600, // 60 min.
 
         // Appearance
         maxEvents: null,
@@ -101,7 +101,9 @@ const moduleDefinition = {
     },
 
     getHeader: function () {
-        return this.data.header ? this.data.header : this.title;
+        if (this.data.header) return this.data.header;
+        if (this.config.eventTitle && this.title) return this.config.eventTitle + ' | ' + this.title;
+        return this.title;
     },
 
     start: function () {
@@ -149,7 +151,6 @@ const moduleDefinition = {
             // can route the response back to this specific instance only.
             this.sendSocketNotification('LOAD_EVENTS', {
                 lang: this.usedLanguage,
-                eventsType: this.config.eventsType,
                 identifier: this.identifier,
             });
         } else {
@@ -158,8 +159,20 @@ const moduleDefinition = {
     },
 
     handleEventsLoaded: function (payload) {
-        // No data
-        if (!payload || payload.length <= 0) {
+        // No data — fetch failed
+        if (!payload) {
+            Log.warn('No events available for language ' + this.usedLanguage);
+            this.currentDay = null;
+            this.scheduleRefresh(60); // Retry in a minute
+            return;
+        }
+
+        // Extract the event type requested by this instance's config.
+        // The 'all' endpoint returns { events, births, deaths, holidays, selected }.
+        const rawEvents = payload[this.config.eventsType] || [];
+
+        // No events for this type
+        if (rawEvents.length <= 0) {
             Log.warn('No events available for language ' + this.usedLanguage);
             this.currentDay = null;
             this.scheduleRefresh(60); // Retry in a minute
@@ -175,7 +188,8 @@ const moduleDefinition = {
             month: 'long',
         });
 
-        this.events = payload;
+        // Reverse order for backward compatibility (was previously done in the fetcher)
+        this.events = rawEvents.slice().reverse();
 
         // Apply reverse config option
         if (this.config.reverseOrder) {
@@ -213,12 +227,17 @@ const moduleDefinition = {
     },
 
     scheduleRefresh: function (seconds) {
-        setTimeout(
-            () => {
-                this.loadEvents();
-            },
-            (seconds || this.config.updateInterval) * 1000,
-        );
+        const delay = seconds !== undefined ? seconds * 1000 : this.getMsUntilMidnight();
+        setTimeout(() => {
+            this.loadEvents();
+        }, delay);
+    },
+
+    getMsUntilMidnight: function () {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        return midnight - now;
     },
 
     updateCarousel: function () {
@@ -233,12 +252,76 @@ const moduleDefinition = {
         const eventText = this.events[this.carouselIndex].text;
         this.eventDisplayDuration = this.getEventDisplayDuration(eventText);
 
-        this.updateDom(this.config.animationSpeed * 1000);
+        const eventEl = document.getElementById('mmm-otd-carousel-event');
+        const fadeMs = this.config.animationSpeed * 500;
+
+        if (eventEl) {
+            // Smooth transition: fade out, swap content, fade in
+            eventEl.style.transition = `opacity ${fadeMs}ms ease-in-out`;
+            eventEl.style.opacity = '0';
+
+            setTimeout(() => {
+                eventEl.textContent = this.capitalizeFirst(eventText);
+                this.updateYearList();
+                eventEl.style.opacity = '1';
+            }, fadeMs);
+        } else {
+            // First render — build the DOM via template
+            this.updateDom(this.config.animationSpeed * 1000);
+        }
 
         // Schedule next update
         this.carouselTimer = setTimeout(() => {
             this.updateCarousel();
         }, this.eventDisplayDuration * 1000);
+    },
+
+    capitalizeFirst: function (text) {
+        return (text.charAt(0).toUpperCase() + text.slice(1)).trim();
+    },
+
+    updateYearList: function () {
+        const yearsEl = document.getElementById('mmm-otd-carousel-years');
+        if (!yearsEl) return;
+
+        const total = this.eventYears.length;
+        const current = this.carouselIndex;
+
+        let start = current - 3;
+        let end = current + 3;
+
+        if (start < 0) {
+            start = 0;
+            end = 6;
+        }
+        if (end >= total) {
+            end = total - 1;
+            start = total - 7;
+        }
+        if (start < 0) start = 0;
+
+        yearsEl.innerHTML = '';
+
+        if (start > 0) {
+            const dots = document.createElement('li');
+            dots.className = 'event-year-dots light';
+            dots.textContent = '...';
+            yearsEl.appendChild(dots);
+        }
+
+        for (let i = start; i <= end; i++) {
+            const li = document.createElement('li');
+            li.className = `event-year ${i === current ? 'bold' : 'light'}`;
+            li.textContent = this.eventYears[i];
+            yearsEl.appendChild(li);
+        }
+
+        if (end < total - 1) {
+            const dots = document.createElement('li');
+            dots.className = 'event-year-dots light';
+            dots.textContent = '...';
+            yearsEl.appendChild(dots);
+        }
     },
 
     getEventDisplayDuration(eventText) {

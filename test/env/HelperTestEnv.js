@@ -17,11 +17,13 @@ const NodeHelperFake = {
 
 const wikimediaApiFetcherMock = {
     fetch: (language) => {
-        return [
-            {
-                text: `test events for ${language}`,
-            },
-        ];
+        return {
+            events: [{ text: `test events for ${language}` }],
+            births: [],
+            deaths: [],
+            holidays: [],
+            selected: [],
+        };
     },
 };
 

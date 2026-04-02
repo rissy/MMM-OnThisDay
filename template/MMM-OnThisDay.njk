@@ -26,12 +26,12 @@
 
             {# Carousel mode #}
             {% set event = events[carouselIndex] %}
-            <div class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
+            <div id="mmm-otd-carousel-event" class="bright">{{ (event.text.charAt(0).toUpperCase() + event.text.slice(1)).trim() }}</div>
 
             {# List of years #}
             {% if (eventYears | length > 0) and hasYears %}
 
-                <ul class="event-year-list">
+                <ul id="mmm-otd-carousel-years" class="event-year-list">
                     {% if eventYears | length > 0 %}
 
                         {% set total = eventYears | length %}

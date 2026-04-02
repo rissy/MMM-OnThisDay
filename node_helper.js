@@ -22,17 +22,17 @@ module.exports = NodeHelper.create({
         this.logger.log(`Received socket notification ${notification}.`);
 
         if (notification === 'LOAD_EVENTS') {
-            // Load data
-            const events = await this.loadEvents(payload.lang, payload.eventsType);
+            // Load data — eventsType filtering is done on the frontend
+            const data = await this.loadEvents(payload.lang);
 
             // Route the response back to the requesting instance only.
-            this.sendSocketNotification('EVENTS_LOADED_' + payload.identifier, events);
+            this.sendSocketNotification('EVENTS_LOADED_' + payload.identifier, data);
         }
     },
 
-    loadEvents: async function (language, eventsType) {
+    loadEvents: async function (language) {
         this.logger.log('Load events ...');
 
-        return this.wikimediaApiFetcher.fetch(language, eventsType);
+        return this.wikimediaApiFetcher.fetch(language);
     },
 });
